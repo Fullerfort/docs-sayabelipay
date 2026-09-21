@@ -7,7 +7,6 @@
     "light": "#8b5cf6",
     "dark": "#4c1d95"
   },
-  "favicon": "/favicon.png",
   "navigation": {
     "tabs": [
       {
@@ -39,14 +38,6 @@
             ]
           }
         ]
-      }
-    ]
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "REPLACE_ME_your_real_support_email_or_contact_link"
       }
     ]
   }
