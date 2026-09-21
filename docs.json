@@ -7,6 +7,11 @@
     "light": "#8b5cf6",
     "dark": "#4c1d95"
   },
+  "favicon": "/favicon.svg",
+  "logo": {
+    "light": "/logo/light.png",
+    "dark": "/logo/dark.png"
+  },
   "navigation": {
     "tabs": [
       {
