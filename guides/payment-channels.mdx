@@ -1,0 +1,48 @@
+---
+title: Payment Channels
+description: What to put in the `channel` field, and why it depends on your account
+---
+
+The `channel` field on [`POST /api/payment`](/api-reference/create-payment) tells SayaBeliPay how the customer wants to pay. Which values are valid **depends on which payment processor backs your merchant account** — SayaBeliPay routes your account to one of a small number of underlying processors, and each one has its own channel vocabulary.
+
+<Note>
+  If you don't know which processor backs your account, check with SayaBeliPay support — they can confirm your exact channel list. The tables below cover the two confirmed processor configurations as of this writing.
+</Note>
+
+## FPX (Online Banking)
+
+```json
+{ "channel": "ONLINE_BANKING" }
+```
+
+Redirects the customer to a bank-selection page. You can see the live list of banks and which are currently online via [`GET /api/fpx_bank_list`](/api-reference/fpx-bank-list).
+
+Some accounts also accept an optional `payment_code` field alongside `channel: "ONLINE_BANKING"` — set it to a specific bank code (see [Bank Codes](/guides/bank-codes)) to skip the bank-selection step and send the customer straight to their bank's login page. This isn't available on every account; if you send a `payment_code` and it's ignored, your account doesn't support the skip.
+
+## Card
+
+```json
+{ "channel": "CC" }
+```
+
+<Warning>
+  Card payments are geo-restricted. Your server's request itself isn't checked — the restriction is based on the **customer's own IP address** at the moment they call this endpoint, checked against a blocklist of countries. A request from a disallowed country receives a `403` before any payment is created.
+</Warning>
+
+## Other channels (account-dependent)
+
+Some accounts also support:
+
+| Value | Method |
+|---|---|
+| `ALIPAY` | Alipay |
+| `WECHAT` | WeChat Pay |
+| `GOOGLE_PAY` | Google Pay |
+
+<Note>
+  On accounts where Alipay/WeChat Pay ride on a shared DuitNow QR rail, the checkout page can't restrict itself to *only* Alipay or *only* WeChat Pay — the customer sees one QR code that any compatible wallet app can scan, regardless of which of the two values you sent. Don't rely on the `channel` value to guarantee which specific wallet app the customer ends up using for these two.
+</Note>
+
+## Unsupported channel
+
+If you send a `channel` value your account doesn't support, the request fails before a checkout URL is ever created — you won't get back a broken or empty checkout page, you'll get an error response instead. Confirm your account's exact supported list with SayaBeliPay support before going live with a new channel.

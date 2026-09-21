@@ -1,0 +1,52 @@
+---
+title: Hash Generation
+description: How to sign a payment request
+---
+
+Every call to [`POST /api/payment`](/api-reference/create-payment) requires a `hash` field, computed by your server, that lets SayaBeliPay confirm the request genuinely came from you and wasn't tampered with in transit.
+
+## Formula
+
+```
+hash = SHA256( client_secret + customer_name + customer_email + customer_phone + order_no + amount + order_detail + channel )
+```
+
+- The pieces are concatenated **as plain strings**, in the exact order above, with no separators between them.
+- `amount` is concatenated exactly as you send it in the request body (e.g. `"20.00"`, not `20` or `2000`).
+- `channel` here means whatever you put in the `channel` field of the request — if you're also passing a bank-specific `payment_code`, use `payment_code` in this position instead of `channel`.
+- The result is a SHA-256 digest, encoded as a **lowercase hex string** (64 characters) — the same output you get from PHP's `hash('sha256', $string)`, Node's `crypto.createHash('sha256').update(string).digest('hex')`, or equivalent.
+
+<CodeGroup>
+
+```php PHP
+$stringToHash = $clientSecret
+    . $customerName
+    . $customerEmail
+    . $customerPhone
+    . $orderNo
+    . $amount
+    . $orderDetail
+    . $channel;
+
+$hash = hash('sha256', $stringToHash);
+```
+
+```javascript Node.js
+const crypto = require("crypto");
+
+const stringToHash =
+  clientSecret + customerName + customerEmail + customerPhone +
+  orderNo + amount + orderDetail + channel;
+
+const hash = crypto.createHash("sha256").update(stringToHash).digest("hex");
+```
+
+</CodeGroup>
+
+<Warning>
+  Never compute this hash in browser/client-side code — it requires your Client Secret, which must stay on your server.
+</Warning>
+
+<Note>
+  `hash` is a required field on every request and must be a non-empty string, but note that not every account currently has the hash value itself checked against this formula server-side. Compute and send it correctly anyway — treat it as part of the contract, since enforcement is being tightened over time and a request built without it may be rejected outright in the future.
+</Note>

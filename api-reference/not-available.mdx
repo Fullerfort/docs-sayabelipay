@@ -1,0 +1,22 @@
+---
+title: Not Currently Available
+description: Endpoints that exist but shouldn't be relied on yet
+---
+
+A few endpoints exist in the API but aren't ready for integration yet. Listed here explicitly so you don't spend time building against them and then hit unexpected failures.
+
+## Pre-authorization / void
+
+`POST /api/preauth`, `POST /api/void/preauth`, `POST /api/void/capture`
+
+These implement an authorize-now-capture-later flow, but aren't wired up for the payment processors currently active on merchant accounts. Don't build a hold-then-capture flow against these yet — every [`POST /api/payment`](/api-reference/create-payment) charges immediately, there's no delayed-capture option today.
+
+## Payouts
+
+`GET /api/payout/account`, `POST /api/payout/create`, `GET /api/payouts`, `GET /api/payout/{ref}`
+
+Sending funds *out* to a bank account (as opposed to accepting payments *in*) is on a separate system from the payment API described elsewhere in these docs, and isn't available to every account. If your use case needs disbursements/payouts rather than accepting customer payments, talk to SayaBeliPay support about whether your account has this enabled before building against these.
+
+<Note>
+  If you're only accepting customer payments (the common case — see [Create a Payment](/api-reference/create-payment)), none of this section applies to you.
+</Note>

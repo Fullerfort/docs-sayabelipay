@@ -1,0 +1,59 @@
+---
+title: Getting Started
+description: Base URL, authentication, and your first request
+---
+
+## Base URL
+
+```
+https://sayabelipay.com/api
+```
+
+## Authentication
+
+Every request is authenticated with **HTTP Basic Auth**, using your **Client ID** as the username and your **Client Secret** as the password.
+
+Both values are on your merchant dashboard under **Merchant → Edit**. You have a separate Client ID/Secret pair depending on your account's environment (sandbox vs production) — check your dashboard to confirm which one you've been issued.
+
+<CodeGroup>
+
+```bash cURL
+curl https://sayabelipay.com/api/transactions \
+  -u "YOUR_CLIENT_ID:YOUR_CLIENT_SECRET"
+```
+
+```javascript Node.js
+const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
+
+const res = await fetch("https://sayabelipay.com/api/transactions", {
+  headers: { Authorization: `Basic ${auth}` },
+});
+```
+
+```php PHP
+$response = Http::withBasicAuth($clientId, $clientSecret)
+    ->get('https://sayabelipay.com/api/transactions');
+```
+
+</CodeGroup>
+
+Requests without valid credentials receive:
+
+```json
+{ "status": 401, "message": "Token Invalid" }
+```
+
+## Callback URL
+
+Your account has a **Callback URL** (and a separate **Callback URL (test)** for sandbox) configured on your merchant dashboard. This is where the customer's browser is sent after completing (or abandoning) checkout — see [Getting Payment Status](/guides/payment-status) for the full detail on what's appended to it and why it isn't enough on its own.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Create a payment" icon="credit-card" href="/api-reference/create-payment">
+    Make your first payment request
+  </Card>
+  <Card title="Payment channels" icon="list" href="/guides/payment-channels">
+    See which channel values your account supports
+  </Card>
+</CardGroup>

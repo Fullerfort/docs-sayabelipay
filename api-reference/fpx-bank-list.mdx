@@ -1,0 +1,33 @@
+---
+title: FPX Bank List
+description: "GET /api/fpx_bank_list"
+---
+
+Returns the payment methods currently available on your account, including live FPX bank online/offline status.
+
+## Request
+
+```bash
+curl https://sayabelipay.com/api/fpx_bank_list \
+  -u "YOUR_CLIENT_ID:YOUR_CLIENT_SECRET"
+```
+
+No parameters.
+
+## Response
+
+```json
+{
+  "status": 200,
+  "data": {
+    "available_payment_methods": ["fpx", "visa", "mastercard", "..."],
+    "names": { "fpx": "FPX Online Banking", "...": "..." }
+  }
+}
+```
+
+<Note>
+  This dispatches to whichever processor backs your account, so the exact shape of `data` can differ — the example above reflects one confirmed processor configuration. Treat `available_payment_methods` (or whatever list field is present) as the reliable part; don't hardcode assumptions about every nested field.
+</Note>
+
+Call this before showing a bank-selection UI, or before sending an FPX `payment_code` on [create payment](/api-reference/create-payment) — a bank that's temporarily offline will reject the payment attempt even though its code is technically valid.

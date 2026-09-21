@@ -1,0 +1,43 @@
+---
+title: Cancel a Pending Transaction
+description: "POST /api/transaction/{ref}/cancel"
+---
+
+Marks a still-pending transaction as cancelled.
+
+<Warning>
+  This only updates the record on SayaBeliPay's side — it does **not** reach out to the payment processor to invalidate the checkout page itself. If the customer still has the checkout link open, they can potentially still complete payment after you've called this. Don't rely on this endpoint as a hard stop; use it to clean up abandoned orders in your own system, not as a security control.
+</Warning>
+
+## Request
+
+```bash
+curl -X POST https://sayabelipay.com/api/transaction/9B8FEEB60F9E3/cancel \
+  -u "YOUR_CLIENT_ID:YOUR_CLIENT_SECRET"
+```
+
+| Path parameter | Notes |
+|---|---|
+| `ref` | The `transaction_id` of a transaction currently in `Pending` status. |
+
+## Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "transaction_id": "9B8FEEB60F9E3",
+    "order_no": "ORDER-1234",
+    "status": "Cancelled",
+    "...": "..."
+  }
+}
+```
+
+### Not eligible
+
+Only transactions currently in `Pending` status can be cancelled this way. Calling this on a transaction that's already `Success`, already `Cancelled`, or in any other terminal state returns a `404`:
+
+```json
+{ "success": false, "message": "Pending transaction not found" }
+```

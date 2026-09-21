@@ -1,0 +1,48 @@
+---
+title: Transaction Details
+description: "GET /api/transaction/{ref}"
+---
+
+Returns the full current state of a single transaction. This is the endpoint to call when [polling for payment status](/guides/payment-status).
+
+## Request
+
+```bash
+curl https://sayabelipay.com/api/transaction/9B8FEEB60F9E3 \
+  -u "YOUR_CLIENT_ID:YOUR_CLIENT_SECRET"
+```
+
+| Path parameter | Notes |
+|---|---|
+| `ref` | The `transaction_id` value from [create payment](/api-reference/create-payment)'s redirect, or from [list transactions](/api-reference/list-transactions). |
+
+## Response
+
+```json
+{
+  "status": 200,
+  "data": {
+    "transaction_id": "9B8FEEB60F9E3",
+    "order_no": "ORDER-1234",
+    "product_description": "Order 1234",
+    "name": "Jane Tan",
+    "phone_number": "60123456789",
+    "email_address": "jane@example.com",
+    "payment_use": "FPX",
+    "transaction_amount": "20.00",
+    "transaction_date": "2026-09-21T04:49:05.000000Z",
+    "status": "Success"
+  }
+}
+```
+
+`status` is what to check — see [Getting Payment Status](/guides/payment-status) for which values mean the payment actually succeeded.
+
+### Not found
+
+```bash
+curl https://sayabelipay.com/api/transaction/does-not-exist \
+  -u "YOUR_CLIENT_ID:YOUR_CLIENT_SECRET"
+```
+
+Returns `ref` validation error (empty ref) or an empty/null result for a `ref` that doesn't match any of your transactions — this endpoint only ever returns transactions that belong to your own account, never another merchant's.

@@ -1,55 +1,30 @@
-# Mintlify Starter Kit
+# SayaBeliPay API Docs — new Mintlify project
 
-Use the starter kit to get your docs deployed and ready to customize.
+This folder is a complete, ready-to-deploy Mintlify docs site, written from scratch against the **real, currently-running code** (verified live throughout September 2026), not the old docs.sayabelipay.com content — which is known stale and inaccessible (previous IT contractor's Mintlify/GitHub accounts, not recoverable).
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+## What's in here
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+- `docs.json` — Mintlify nav/theme config
+- `index.mdx`, `getting-started.mdx` — overview pages
+- `guides/` — hash generation, payment channels, getting payment status (the "no webhook, must poll" guide), bank codes
+- `api-reference/` — one page per real, working endpoint, plus one page explicitly listing what's *not* ready yet (preauth/void, payouts)
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+## Before you deploy
 
-## AI-assisted writing
+Two placeholders need your input — search for `REPLACE_ME` in `docs.json`:
 
-Set up your AI coding tool to work with Mintlify:
+1. **Support link** — currently a placeholder, set it to a real email or contact page.
+2. **Favicon** — `docs.json` references `/favicon.png`, which doesn't exist yet. Add your logo/favicon file at that path, or remove the `"favicon"` line if you don't have one ready.
 
-```bash
-npx skills add https://mintlify.com/docs
-```
+## To set this up
 
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
+1. Sign up at [mintlify.com](https://mintlify.com) with an account/email you control.
+2. Create a new project, connect it to a GitHub repo (Mintlify can create one for you, or connect an existing empty one).
+3. Push this folder's contents to that repo — Mintlify auto-deploys on push.
+4. Once it's live on Mintlify's own domain and you're happy with it, point the `docs.sayabelipay.com` DNS record (CNAME, per Mintlify's custom-domain instructions) at the new project. This is a clean cutover — the old contractor's project is a dead end regardless of what you do here, so there's no migration step needed from their side.
 
-See the [AI tools guides](/ai-tools) for tool-specific setup.
+## Coverage note
 
-## Development
+Every endpoint documented here was tested against the real, live API this session — not assumed from reading code. One real bug was found and fixed along the way: `POST /api/refund` was completely non-functional before today (wrong field names being read server-side), now confirmed working end-to-end.
 
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
-
-```
-npm i -g mint
-```
-
-Run the following command at the root of your documentation, where your `docs.json` is located:
-
-```
-mint dev
-```
-
-View your local preview at `http://localhost:3000`.
-
-## Publishing changes
-
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
-
-## Need help?
-
-### Troubleshooting
-
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
-
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+Endpoints intentionally **not** documented as generally available: `/api/preauth`, `/api/void/preauth`, `/api/void/capture` (hardcoded to a processor no live merchant currently uses), and the payout endpoints (only wired for one processor, not available on every account) — see `api-reference/not-available.mdx` for why.

@@ -1,0 +1,49 @@
+---
+title: List Transactions
+description: "GET /api/transactions"
+---
+
+Returns a paginated list of your transactions.
+
+## Request
+
+```bash
+curl "https://sayabelipay.com/api/transactions?per_page=50&date_start=2026-01-01&date_end=2026-01-31" \
+  -u "YOUR_CLIENT_ID:YOUR_CLIENT_SECRET"
+```
+
+| Query parameter | Required | Notes |
+|---|---|---|
+| `per_page` | No | Defaults to `100`. |
+| `date_start` | No | Format `YYYY-MM-DD`. Filters by creation date. |
+| `date_end` | No | Format `YYYY-MM-DD`. |
+
+## Response
+
+```json
+{
+  "status": 200,
+  "data": {
+    "current_page": 1,
+    "data": [
+      {
+        "transaction_id": "9B8FEEB60F9E3",
+        "order_no": "ORDER-1234",
+        "product_description": "Order 1234",
+        "name": "Jane Tan",
+        "phone_number": "60123456789",
+        "email_address": "jane@example.com",
+        "payment_use": "FPX",
+        "transaction_amount": "20.00",
+        "transaction_date": "2026-09-21T04:49:05.000000Z",
+        "status": "Success"
+      }
+    ],
+    "last_page": 1,
+    "per_page": 100,
+    "total": 1
+  }
+}
+```
+
+Standard paginated response — `data.data` is the array of transactions, with `current_page`/`last_page`/`total` alongside it for pagination. `transaction_id` here is the value to use with [transaction details](/api-reference/transaction-details), [cancel](/api-reference/cancel-transaction), and [refund](/api-reference/refund).

@@ -1,0 +1,99 @@
+---
+title: Create a Payment
+description: "POST /api/payment"
+---
+
+Creates a new payment and returns a checkout URL to redirect your customer to.
+
+## Request
+
+```
+POST https://sayabelipay.com/api/payment
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic base64(client_id:client_secret)
+```
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `amount` | string | Yes | Minimum `10.00`. Format as a decimal string, e.g. `"20.00"`. |
+| `quantity` | integer | Yes | Minimum `1`. |
+| `order_no` | string | Yes | Your own unique order reference. Must be unique per merchant — reusing one will be rejected. |
+| `order_detail` | string | Yes | Max 30 characters. Letters, numbers, and spaces only — no punctuation. |
+| `customer_name` | string | Yes | |
+| `customer_email` | string | Yes | Must be a valid email address. |
+| `customer_phone` | string | Yes | Numeric only, no `+` or spaces. |
+| `channel` | string | Yes | See [Payment Channels](/guides/payment-channels) for valid values on your account. |
+| `payment_code` | string | No | Specific bank code to skip bank selection — only honored on some accounts, only with `channel: "ONLINE_BANKING"`. See [Bank Codes](/guides/bank-codes). |
+| `hash` | string | Yes | See [Hash Generation](/guides/hash-generation). |
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://sayabelipay.com/api/payment \
+  -u "YOUR_CLIENT_ID:YOUR_CLIENT_SECRET" \
+  -d amount=20.00 \
+  -d quantity=1 \
+  -d order_no=ORDER-1234 \
+  -d order_detail="Order 1234" \
+  -d customer_name="Jane Tan" \
+  -d customer_email=jane@example.com \
+  -d customer_phone=60123456789 \
+  -d channel=ONLINE_BANKING \
+  -d hash=YOUR_COMPUTED_HASH
+```
+
+```php PHP
+$response = Http::withBasicAuth($clientId, $clientSecret)->asForm()->post(
+    'https://sayabelipay.com/api/payment',
+    [
+        'amount' => '20.00',
+        'quantity' => 1,
+        'order_no' => 'ORDER-1234',
+        'order_detail' => 'Order 1234',
+        'customer_name' => 'Jane Tan',
+        'customer_email' => 'jane@example.com',
+        'customer_phone' => '60123456789',
+        'channel' => 'ONLINE_BANKING',
+        'hash' => $hash,
+    ]
+);
+```
+
+</CodeGroup>
+
+## Response
+
+```json
+{
+  "status": 200,
+  "data": "https://gate.example.com/p/9b8feeb6-0f9e-.../"
+}
+```
+
+`data` is the checkout URL — redirect your customer there. Its host depends on which processor backs your account, so don't hardcode assumptions about the domain; always use the URL returned in the response.
+
+### Validation errors
+
+```json
+{
+  "errors": {
+    "amount": ["The amount must be at least RM 10.00."]
+  }
+}
+```
+
+Returned with HTTP `422` when required fields are missing or malformed.
+
+### Card channel: country restriction
+
+If `channel` is `CC`, the request is additionally checked against the customer's IP-derived country. A blocked country returns:
+
+```json
+{ "status": "error", "message": "Access restricted from your country for the selected payment channel." }
+```
+
+with HTTP `403` — this can happen even when every other field is valid.
+
+## After this call
+
+Your `order_no` is not the same identifier you'll use to check status later — the response doesn't include a transaction reference directly. To look up this payment afterward, use the reference that reaches you via the [browser redirect](/guides/payment-status) (`transactionId` query parameter) once the customer completes checkout, or find it by `order_no` via [`GET /api/transactions`](/api-reference/list-transactions).
