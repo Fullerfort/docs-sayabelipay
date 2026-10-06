@@ -14,11 +14,18 @@ The `channel` field on [`POST /api/payment`](/api-reference/create-payment) tell
 
 `ONLINE_BANKING` is accepted as an alias for `FPX`.
 
-### DuitNow QR covers Alipay and WeChat Pay
+### Which apps can pay a DuitNow QR
 
-DuitNow QR is **one QR code** that any DuitNow-compatible app can scan — Malaysian banking apps and e-wallets (Touch 'n Go eWallet, Boost, GrabPay, ShopeePay, MAE and others), plus supported foreign wallets such as Alipay and WeChat Pay. There's no separate Alipay or WeChat Pay channel: the customer chooses which app to scan with.
+DuitNow QR is **one QR code** that the customer scans with any compatible app:
 
-`ALIPAY`, `WECHAT` and `WECHAT_PAY` are accepted as aliases for `DUITNOW_QR` and produce exactly the same QR code — they can't restrict payment to one wallet. New integrations should send `DUITNOW_QR`.
+| Country | Apps |
+|---|---|
+| Malaysia | Online banking apps, MAE, Touch 'n Go eWallet, GrabPay, ShopeePay, Boost |
+| Indonesia | BCA, BSI, BPD Bali, CIMB Niaga, DANA, LinkAja, Mega, OttoCash, Permata, ShopeePay, Sinarmas |
+| Thailand | Bangkok Bank, Bank of Ayudhya, CIMB Thai, Krungthai Bank, Siam Commercial Bank |
+| Singapore | DBS, OCBC, UOB |
+
+Foreign customers pay in their home currency. The customer chooses which app to scan with; you can't restrict the QR to a particular app.
 
 <Note>
   DuitNow QR payments **cannot be refunded** through SayaBeliPay. See [Refund a Payment](/api-reference/refund).
