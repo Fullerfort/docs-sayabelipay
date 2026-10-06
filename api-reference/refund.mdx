@@ -9,8 +9,8 @@ Refunds a successfully paid transaction back to the customer's original payment 
 
 | Paid with | Refundable? | How long |
 |---|---|---|
-| FPX | Yes — full or partial | Usually 1–2 business days to reach the customer |
-| DuitNow QR | **No** — DuitNow QR payments can't be refunded through SayaBeliPay | — |
+| FPX | Yes — full or partial | 3–5 business days to reach the customer |
+| DuitNow QR | Yes — full or partial | 3–5 business days to reach the customer |
 
 After a successful refund request the transaction's status becomes `Pending_Refund`, then `Refunded` once the money has been returned. Track it with [`GET /api/transaction/{ref}`](/api-reference/transaction-details). A refund can't be cancelled once requested.
 
@@ -79,7 +79,7 @@ $response = Http::withBasicAuth($clientId, $clientSecret)->asForm()->post(
 
 ### Rejected by the payment processor
 
-If the processor refuses the refund (for example, a DuitNow QR payment), HTTP `502`:
+If the processor refuses the refund, HTTP `502`:
 
 ```json
 { "status": 502, "message": "ChipPay rejected the refund request.", "gateway_error": "..." }
