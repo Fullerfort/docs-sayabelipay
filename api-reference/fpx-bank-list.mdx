@@ -1,9 +1,9 @@
 ---
-title: FPX Bank List
+title: Payment Methods Available
 description: "GET /api/fpx_bank_list"
 ---
 
-Returns the payment methods currently available on your account, including live FPX bank online/offline status.
+Returns the payment methods currently available on your account. Despite the endpoint's name, it lists **payment methods**, not individual banks — the customer picks their bank on the checkout page.
 
 ## Request
 
@@ -20,14 +20,22 @@ No parameters.
 {
   "status": 200,
   "data": {
-    "available_payment_methods": ["fpx", "visa", "mastercard", "..."],
-    "names": { "fpx": "FPX Online Banking", "...": "..." }
+    "available_payment_methods": ["fpx", "fpx_b2b1", "dnqr", "duitnow_qr"],
+    "names": {
+      "fpx": "FPX B2C",
+      "fpx_b2b1": "FPX B2B1",
+      "dnqr": "Duitnow QR",
+      "duitnow_qr": "Duitnow Qr"
+    }
   }
 }
 ```
 
-<Note>
-  This dispatches to whichever processor backs your account, so the exact shape of `data` can differ — the example above reflects one confirmed processor configuration. Treat `available_payment_methods` (or whatever list field is present) as the reliable part; don't hardcode assumptions about every nested field.
-</Note>
+`available_payment_methods` uses the payment processor's own codes, which differ from the `channel` values you send when [creating a payment](/api-reference/create-payment):
 
-Call this before showing a bank-selection UI, or before sending an FPX `payment_code` on [create payment](/api-reference/create-payment) — a bank that's temporarily offline will reject the payment attempt even though its code is technically valid.
+| Code in this list | `channel` to send |
+|---|---|
+| `fpx` | `FPX` |
+| `dnqr` / `duitnow_qr` | `DUITNOW_QR` |
+
+Other codes may appear (for example `fpx_b2b1`, corporate FPX); only the channels in [Payment Channels](/guides/payment-channels) can be used to create a payment. In sandbox the list is longer, because the test environment enables extra methods.

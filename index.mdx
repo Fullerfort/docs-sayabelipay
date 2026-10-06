@@ -3,13 +3,13 @@ title: Introduction
 description: Accept and manage payments through the SayaBeliPay API
 ---
 
-SayaBeliPay lets your business accept online payments — FPX bank transfers, cards, and e-wallets — and manage the resulting transactions, all through a single REST API.
+SayaBeliPay lets your business accept online payments — FPX online banking and DuitNow QR (which customers can pay with Malaysian banking apps and e-wallets, Alipay or WeChat Pay) — and manage the resulting transactions, all through a single REST API. Card and Google Pay payments are coming soon.
 
 ## How it works
 
 1. Your merchant account is approved and given a **Client ID** and **Client Secret**.
 2. Your server calls [`POST /api/payment`](/api-reference/create-payment) with the order details. SayaBeliPay returns a **checkout URL**.
-3. You redirect your customer to that checkout URL, where they complete payment (selecting their bank for FPX, entering card details, etc.).
+3. You redirect your customer to that checkout URL, where they complete payment (selecting their bank for FPX, or scanning the QR code for DuitNow QR).
 4. Once payment finishes, the customer's browser is redirected back to the **Callback URL** on your account, with the outcome in the query string.
 5. Because a browser redirect can be lost (closed tab, network drop, etc.), you should also independently confirm the final status by calling [`GET /api/transaction/{ref}`](/api-reference/transaction-details) — see [Getting Payment Status](/guides/payment-status) for why this matters and how to do it reliably.
 
@@ -22,7 +22,7 @@ SayaBeliPay lets your business accept online payments — FPX bank transfers, ca
 | Capability | Endpoint |
 |---|---|
 | Create a payment and get a checkout URL | [`POST /api/payment`](/api-reference/create-payment) |
-| List available FPX banks | [`GET /api/fpx_bank_list`](/api-reference/fpx-bank-list) |
+| List the payment methods available on your account | [`GET /api/fpx_bank_list`](/api-reference/fpx-bank-list) |
 | List your transactions | [`GET /api/transactions`](/api-reference/list-transactions) |
 | Get one transaction's details | [`GET /api/transaction/{ref}`](/api-reference/transaction-details) |
 | Cancel a still-pending transaction | [`POST /api/transaction/{ref}/cancel`](/api-reference/cancel-transaction) |

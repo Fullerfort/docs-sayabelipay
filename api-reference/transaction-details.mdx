@@ -30,7 +30,7 @@ curl https://sayabelipay.com/api/transaction/9B8FEEB60F9E3 \
     "email_address": "jane@example.com",
     "payment_use": "FPX",
     "transaction_amount": "20.00",
-    "transaction_date": "2026-09-21T04:49:05.000000Z",
+    "transaction_date": "2026-09-21 12:49:05",
     "status": "Success"
   }
 }
@@ -38,11 +38,14 @@ curl https://sayabelipay.com/api/transaction/9B8FEEB60F9E3 \
 
 `status` is what to check — see [Getting Payment Status](/guides/payment-status) for which values mean the payment actually succeeded.
 
+`transaction_date` is in Malaysia time (UTC+8), format `YYYY-MM-DD HH:MM:SS`.
+
 ### Not found
 
-```bash
-curl https://sayabelipay.com/api/transaction/does-not-exist \
-  -u "YOUR_CLIENT_ID:YOUR_CLIENT_SECRET"
+A `ref` that doesn't match any of your transactions returns HTTP `404`:
+
+```json
+{ "success": false, "message": "Transaction not found" }
 ```
 
-Returns `ref` validation error (empty ref) or an empty/null result for a `ref` that doesn't match any of your transactions — this endpoint only ever returns transactions that belong to your own account, never another merchant's.
+This endpoint only ever returns your own account's transactions, never another merchant's. In sandbox it looks up your sandbox transactions; in live, your live ones.

@@ -35,7 +35,7 @@ curl "https://sayabelipay.com/api/transactions?per_page=50&date_start=2026-01-01
         "email_address": "jane@example.com",
         "payment_use": "FPX",
         "transaction_amount": "20.00",
-        "transaction_date": "2026-09-21T04:49:05.000000Z",
+        "transaction_date": "2026-09-21 12:49:05",
         "status": "Success"
       }
     ],
@@ -45,5 +45,7 @@ curl "https://sayabelipay.com/api/transactions?per_page=50&date_start=2026-01-01
   }
 }
 ```
+
+`transaction_date` is in Malaysia time (UTC+8). Results are newest first, and only include transactions from your current mode (sandbox or live). Use `?page=2` and so on to get further pages.
 
 Standard paginated response — `data.data` is the array of transactions, with `current_page`/`last_page`/`total` alongside it for pagination. `transaction_id` here is the value to use with [transaction details](/api-reference/transaction-details), [cancel](/api-reference/cancel-transaction), and [refund](/api-reference/refund).

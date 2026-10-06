@@ -17,13 +17,12 @@ Authorization: Basic base64(client_id:client_secret)
 |---|---|---|---|
 | `amount` | string | Yes | Minimum `10.00`. Format as a decimal string, e.g. `"20.00"`. |
 | `quantity` | integer | Yes | Minimum `1`. |
-| `order_no` | string | Yes | Your own unique order reference. Must be unique per merchant — reusing one will be rejected. |
-| `order_detail` | string | Yes | Max 30 characters. Letters, numbers, and spaces only — no punctuation. |
+| `order_no` | string | Yes | Your order reference. Must be **unique across SayaBeliPay** — a value that has been used before is rejected, so prefix it with something specific to your business (e.g. `ACME-1234`). |
+| `order_detail` | string | Yes | Max 30 characters. Letters, numbers and spaces only — no punctuation. |
 | `customer_name` | string | Yes | |
 | `customer_email` | string | Yes | Must be a valid email address. |
-| `customer_phone` | string | Yes | Numeric only, no `+` or spaces. |
-| `channel` | string | Yes | See [Payment Channels](/guides/payment-channels) for valid values on your account. |
-| `payment_code` | string | No | Specific bank code to skip bank selection — only honored on some accounts, only with `channel: "ONLINE_BANKING"`. See [Bank Codes](/guides/bank-codes). |
+| `customer_phone` | string | Yes | Numeric only, no `+` or spaces, e.g. `60123456789`. |
+| `channel` | string | Yes | `FPX` or `DUITNOW_QR`. See [Payment Channels](/guides/payment-channels). |
 | `hash` | string | Yes | See [Hash Generation](/guides/hash-generation). |
 
 <CodeGroup>
@@ -33,12 +32,12 @@ curl -X POST https://sayabelipay.com/api/payment \
   -u "YOUR_CLIENT_ID:YOUR_CLIENT_SECRET" \
   -d amount=20.00 \
   -d quantity=1 \
-  -d order_no=ORDER-1234 \
+  -d order_no=ACME-1234 \
   -d order_detail="Order 1234" \
   -d customer_name="Jane Tan" \
   -d customer_email=jane@example.com \
   -d customer_phone=60123456789 \
-  -d channel=ONLINE_BANKING \
+  -d channel=FPX \
   -d hash=YOUR_COMPUTED_HASH
 ```
 
@@ -48,12 +47,12 @@ $response = Http::withBasicAuth($clientId, $clientSecret)->asForm()->post(
     [
         'amount' => '20.00',
         'quantity' => 1,
-        'order_no' => 'ORDER-1234',
+        'order_no' => 'ACME-1234',
         'order_detail' => 'Order 1234',
         'customer_name' => 'Jane Tan',
         'customer_email' => 'jane@example.com',
         'customer_phone' => '60123456789',
-        'channel' => 'ONLINE_BANKING',
+        'channel' => 'FPX',
         'hash' => $hash,
     ]
 );
@@ -66,34 +65,34 @@ $response = Http::withBasicAuth($clientId, $clientSecret)->asForm()->post(
 ```json
 {
   "status": 200,
-  "data": "https://gate.example.com/p/9b8feeb6-0f9e-.../"
+  "data": "https://gate.chip-in.asia/p/9b8feeb6-0f9e-.../"
 }
 ```
 
-`data` is the checkout URL — redirect your customer there. Its host depends on which processor backs your account, so don't hardcode assumptions about the domain; always use the URL returned in the response.
+`data` is the checkout URL — redirect your customer there. Always use the URL from the response rather than building one yourself.
 
-### Validation errors
+## Errors
 
-```json
-{
-  "errors": {
-    "amount": ["The amount must be at least RM 10.00."]
-  }
-}
-```
-
-Returned with HTTP `422` when required fields are missing or malformed.
-
-### Card channel: country restriction
-
-If `channel` is `CC`, the request is additionally checked against the customer's IP-derived country. A blocked country returns:
+**Missing or malformed fields** — HTTP `422`:
 
 ```json
-{ "status": "error", "message": "Access restricted from your country for the selected payment channel." }
+{ "errors": { "amount": ["The amount must be at least RM 10.00."] } }
 ```
 
-with HTTP `403` — this can happen even when every other field is valid.
+**`order_no` already used** — HTTP `400`:
+
+```json
+{ "order_no": ["The order no is already exist."] }
+```
+
+The following come back with HTTP `200`, so always check the `status` field in the body, not just the HTTP code:
+
+| Body `status` | Message | Meaning |
+|---|---|---|
+| `400` | The selected payment channel is not currently available. | The `channel` isn't enabled on your account. See [Payment Channels](/guides/payment-channels). |
+| `403` | Live payments are not enabled for this account yet. Please contact SayaBeliPay. | Your account is in Live Mode but live payments haven't been enabled. See [Going live](/getting-started#going-live). |
+| `502` | Payment gateway is temporarily unavailable. Please try again later. | The payment processor didn't respond. Nothing was created, so it's safe to retry with the same `order_no`. |
 
 ## After this call
 
-Your `order_no` is not the same identifier you'll use to check status later — the response doesn't include a transaction reference directly. To look up this payment afterward, use the reference that reaches you via the [browser redirect](/guides/payment-status) (`transactionId` query parameter) once the customer completes checkout, or find it by `order_no` via [`GET /api/transactions`](/api-reference/list-transactions).
+The response contains only the checkout URL. To check this payment's status later, use the `transactionId` that reaches you via the [browser redirect](/guides/payment-status) when the customer returns from checkout, or find the payment by `order_no` via [`GET /api/transactions`](/api-reference/list-transactions).

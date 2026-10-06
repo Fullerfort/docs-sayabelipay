@@ -13,7 +13,7 @@ hash = SHA256( client_secret + customer_name + customer_email + customer_phone +
 
 - The pieces are concatenated **as plain strings**, in the exact order above, with no separators between them.
 - `amount` is concatenated exactly as you send it in the request body (e.g. `"20.00"`, not `20` or `2000`).
-- `channel` here means whatever you put in the `channel` field of the request — if you're also passing a bank-specific `payment_code`, use `payment_code` in this position instead of `channel`.
+- `channel` is exactly what you put in the `channel` field of the request (e.g. `FPX` or `DUITNOW_QR`).
 - The result is a SHA-256 digest, encoded as a **lowercase hex string** (64 characters) — the same output you get from PHP's `hash('sha256', $string)`, Node's `crypto.createHash('sha256').update(string).digest('hex')`, or equivalent.
 
 <CodeGroup>

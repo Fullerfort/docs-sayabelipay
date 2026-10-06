@@ -1,6 +1,6 @@
 ---
 title: Getting Started
-description: Base URL, authentication, and your first request
+description: Base URL, authentication, sandbox testing, and your first request
 ---
 
 ## Base URL
@@ -9,11 +9,11 @@ description: Base URL, authentication, and your first request
 https://sayabelipay.com/api
 ```
 
+The same base URL is used for sandbox and live — what decides whether a payment is real is your account's mode (see [Sandbox testing](#sandbox-testing)).
+
 ## Authentication
 
-Every request is authenticated with **HTTP Basic Auth**, using your **Client ID** as the username and your **Client Secret** as the password.
-
-Both values are on your merchant dashboard under **Merchant → Edit**. You have a separate Client ID/Secret pair depending on your account's environment (sandbox vs production) — check your dashboard to confirm which one you've been issued.
+Every request is authenticated with **HTTP Basic Auth**, using your **Client ID** as the username and your **Client Secret** as the password. Both are shown on your merchant dashboard under **Merchant → Edit**.
 
 <CodeGroup>
 
@@ -37,15 +37,45 @@ $response = Http::withBasicAuth($clientId, $clientSecret)
 
 </CodeGroup>
 
-Requests without valid credentials receive:
+A missing or wrong Client ID/Secret returns HTTP `401`:
 
 ```json
-{ "status": 401, "message": "Token Invalid" }
+{ "error": "Unauthorized" }
+```
+
+<Warning>
+  Your Client Secret must only ever be used from your server. Never put it in a mobile app, browser JavaScript, or anything a customer can download.
+</Warning>
+
+## Sandbox testing
+
+New merchant accounts start in **sandbox (test) mode**. In sandbox:
+
+- You use the **same base URL, endpoints and credentials** as live.
+- **No real money moves.** The checkout page is a test page where you choose whether the payment succeeds or fails — no real bank login or e-wallet scan is needed.
+- Test transactions are kept separate from live ones and never affect your balance.
+- After checkout, the customer's browser returns to your **Callback URL (test)** instead of your live Callback URL.
+
+Test every outcome before going live: a successful payment, a failed payment, and a customer who abandons checkout (each lands on a different [status](/guides/payment-status)).
+
+<Note>
+  The sandbox may let you test methods that aren't live yet (such as cards). Only the channels listed as **Available now** in [Payment Channels](/guides/payment-channels) will work once you're live.
+</Note>
+
+### Going live
+
+1. Ask SayaBeliPay to **enable live payments** for your account.
+2. Switch your account to **Live Mode** using the toggle on your merchant dashboard.
+
+Your Client ID and Client Secret stay the same — from then on, payments are real. If you switch to Live Mode before live payments are enabled, payment requests return:
+
+```json
+{ "status": 403, "message": "Live payments are not enabled for this account yet. Please contact SayaBeliPay." }
 ```
 
 ## Callback URL
 
-Your account has a **Callback URL** (and a separate **Callback URL (test)** for sandbox) configured on your merchant dashboard. This is where the customer's browser is sent after completing (or abandoning) checkout — see [Getting Payment Status](/guides/payment-status) for the full detail on what's appended to it and why it isn't enough on its own.
+Your account has a **Callback URL**, and a separate **Callback URL (test)** for sandbox, set on your merchant dashboard. This is where the customer's browser is sent after completing or abandoning checkout. See [Getting Payment Status](/guides/payment-status) for what's appended to it and why you shouldn't rely on it alone.
 
 ## Next steps
 
@@ -54,6 +84,6 @@ Your account has a **Callback URL** (and a separate **Callback URL (test)** for 
     Make your first payment request
   </Card>
   <Card title="Payment channels" icon="list" href="/guides/payment-channels">
-    See which channel values your account supports
+    FPX and DuitNow QR
   </Card>
 </CardGroup>
