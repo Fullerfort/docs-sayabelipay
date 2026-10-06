@@ -14,19 +14,6 @@ The `channel` field on [`POST /api/payment`](/api-reference/create-payment) tell
 
 `ONLINE_BANKING` is accepted as an alias for `FPX`.
 
-### Which apps can pay a DuitNow QR
-
-DuitNow QR is **one QR code** that the customer scans with any compatible app:
-
-| Country | Apps |
-|---|---|
-| Malaysia | Online banking apps, MAE, Touch 'n Go eWallet, GrabPay, ShopeePay, Boost |
-| Indonesia | BCA, BSI, BPD Bali, CIMB Niaga, DANA, LinkAja, Mega, OttoCash, Permata, ShopeePay, Sinarmas |
-| Thailand | Bangkok Bank, Bank of Ayudhya, CIMB Thai, Krungthai Bank, Siam Commercial Bank |
-| Singapore | DBS, OCBC, UOB |
-
-Foreign customers pay in their home currency. The customer chooses which app to scan with; you can't restrict the QR to a particular app.
-
 <Note>
   DuitNow QR payments **cannot be refunded** through SayaBeliPay. See [Refund a Payment](/api-reference/refund).
 </Note>
