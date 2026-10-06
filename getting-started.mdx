@@ -65,13 +65,9 @@ Test every outcome before going live: a successful payment, a failed payment, an
 ### Going live
 
 1. Ask SayaBeliPay to **enable live payments** for your account.
-2. Switch your account to **Live Mode** using the toggle on your merchant dashboard.
+2. Once enabled, a **Test Mode / Live Mode** toggle appears at the bottom of your dashboard's sidebar. Switch it to **Live Mode**.
 
-Your Client ID and Client Secret stay the same — from then on, payments are real. If you switch to Live Mode before live payments are enabled, payment requests return:
-
-```json
-{ "status": 403, "message": "Live payments are not enabled for this account yet. Please contact SayaBeliPay." }
-```
+Your Client ID and Client Secret stay the same — from then on, payments are real. You can switch back to Test Mode at any time to test again.
 
 ## Callback URL
 
