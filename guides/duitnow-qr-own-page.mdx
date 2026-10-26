@@ -1,0 +1,69 @@
+---
+title: DuitNow QR on Your Own Page
+description: Show the DuitNow QR code inside your own checkout
+---
+
+<Note>
+  **Coming soon.** This option isn't enabled on the API yet. Today, `channel=DUITNOW_QR` returns a checkout URL like every other channel (see [Create a Payment](/api-reference/create-payment)). The exact request and response fields will be added to this page when it goes live. You can use this guide to plan and design your page now.
+</Note>
+
+<Warning>
+  **Live accounts only.** The QR is only available once Live Mode has been enabled on your account by SayaBeliPay. It doesn't work in sandbox (test) mode: test payments can't produce a real, scannable DuitNow QR. Use sandbox to test the rest of your integration, and contact SayaBeliPay when you're ready to go live.
+</Warning>
+
+Instead of redirecting your customer to a checkout page, you'll be able to ask SayaBeliPay for the DuitNow QR itself and show it on your own page. The customer scans it with their banking app or e-wallet without ever leaving your site.
+
+## How it will work
+
+1. The customer reviews their order on your confirmation page (items, total) and taps **Pay with DuitNow QR**.
+2. Only then does your server create a payment with `channel=DUITNOW_QR` and ask for the QR instead of a checkout URL.
+3. SayaBeliPay returns the **QR image** and its **expiry time**.
+4. You show the QR on your page, either the standard design or a custom design set up with SayaBeliPay (see below).
+5. The customer scans and pays in their app.
+6. You confirm the result by [polling the transaction status](/guides/payment-status), the same as for any other payment.
+
+<Tip>
+  Create the QR only when the customer confirms, not when they open the cart or the checkout page. The QR's 5 minutes start the moment it's created, so making it early wastes the customer's time and leaves unused payments behind.
+</Tip>
+
+## Rules for the QR
+
+| Rule | What it means for you |
+|---|---|
+| **Valid for 5 minutes** | Show a countdown. When it runs out, hide the QR and offer a "Try again" button. |
+| **One payment only** | Each QR can be paid once. To retry after it expires, create a **new payment with a new `order_no`**. |
+| **Amount is fixed** | The amount is built into the QR. The customer can't change it in their app. |
+| **Don't alter the QR** | The QR is digitally signed. Editing or redrawing it makes banking apps reject it. For a branded look, request a [custom design](#custom-qr-design). |
+
+## Custom QR design
+
+The standard QR works for every account. If you'd like the QR to match your brand, **contact SayaBeliPay to request a custom design**, and we'll set it up and test it with you. Please send us:
+
+- your business name as it should appear on the page
+- your logo (PNG or SVG)
+- your brand colour
+
+**What can be customised:**
+- your business name, logo and colours around the QR
+- the colour of the QR code itself, as long as it stays **dark on a light background** (so every banking app can read it)
+- a small logo in the centre of the QR
+
+**What can't be changed:** the name the customer's app shows after scanning. Banking apps read that name from inside the QR, which is digitally signed, so they will always show **CHIP IN SDN. BHD.**, our payment processor, not your business name.
+
+<Warning>
+  Customers who see your name on the page but a different name in their banking app may think something is wrong and stop paying. Always add a line under the QR such as:
+
+  *"Payment processed securely by CHIP IN SDN. BHD."*
+</Warning>
+
+## What to show the customer
+
+A clear QR page usually has:
+
+- your business name and logo
+- the amount, e.g. **RM 25.00**
+- the QR code
+- a countdown, e.g. "Expires in 04:32"
+- a short instruction, e.g. "Scan with any banking or e-wallet app that supports DuitNow QR"
+- the line "Payment processed securely by CHIP IN SDN. BHD."
+- a "QR expired, try again" state for when the countdown ends

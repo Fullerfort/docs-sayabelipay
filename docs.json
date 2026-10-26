@@ -26,6 +26,7 @@
             "pages": [
               "guides/hash-generation",
               "guides/payment-channels",
+              "guides/duitnow-qr-own-page",
               "guides/payment-status"
             ]
           },

@@ -5,7 +5,7 @@ description: What to put in the `channel` field
 
 The `channel` field on [`POST /api/payment`](/api-reference/create-payment) tells SayaBeliPay how the customer wants to pay. The customer is then sent to a checkout page that only offers that method.
 
-## Available now
+## Channels
 
 | `channel` | Method | What the customer does |
 |---|---|---|
@@ -14,14 +14,7 @@ The `channel` field on [`POST /api/payment`](/api-reference/create-payment) tell
 
 `ONLINE_BANKING` is accepted as an alias for `FPX`.
 
-## Coming soon
-
-| `channel` | Method | Status |
-|---|---|---|
-| `CC` | Credit / debit card (Visa, Mastercard) | Awaiting card-scheme approval |
-| `GOOGLE_PAY` | Google Pay | Awaiting approval |
-
-Until these are enabled on your account, sending them returns the "not currently available" response below. You don't need to change anything when they go live — the same `channel` values will start working.
+Want to show the DuitNow QR on your own page instead of redirecting to checkout? See [DuitNow QR on Your Own Page](/guides/duitnow-qr-own-page) (coming soon).
 
 ## Channel not available
 
