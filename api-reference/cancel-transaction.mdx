@@ -3,11 +3,9 @@ title: Cancel a Pending Transaction
 description: "POST /api/transaction/{ref}/cancel"
 ---
 
-Marks a still-pending transaction as cancelled.
+Cancels a transaction that the customer has not paid yet.
 
-<Warning>
-  This only updates the record on SayaBeliPay's side — it does **not** reach out to the payment processor to invalidate the checkout page itself. If the customer still has the checkout link open, they can potentially still complete payment after you've called this. Don't rely on this endpoint as a hard stop; use it to clean up abandoned orders in your own system, not as a security control.
-</Warning>
+SayaBeliPay cancels the payment with the payment processor first, so the customer's checkout page stops accepting payment, and only then marks the transaction `Cancelled`. If the customer has already paid, or is paying at that moment, nothing is cancelled and you get a `409` response instead (see below).
 
 ## Request
 
@@ -34,10 +32,36 @@ curl -X POST https://sayabelipay.com/api/transaction/9B8FEEB60F9E3/cancel \
 }
 ```
 
-### Not eligible
+A `Cancelled` transaction is final. The customer can no longer pay it.
 
-Only transactions currently in `Pending` status can be cancelled this way. Calling this on a transaction that's already `Success`, already `Cancelled`, or in any other terminal state returns a `404`:
+## Errors
+
+| HTTP status | Meaning | What to do |
+|---|---|---|
+| `404` | The transaction is not `Pending` (already `Success`, `Cancelled`, or another final state), or it doesn't exist. | Nothing to cancel. Check its status with [Transaction Details](/api-reference/transaction-details). |
+| `409` | The customer has already paid, or their bank is still processing the payment. Nothing was cancelled. | Don't cancel the order. Check the status again shortly: it will become `Success` (or fail on its own). |
+| `502` | The payment processor could not be reached. Nothing was cancelled. | Safe to retry the same request. |
+
+### Not eligible: `404`
 
 ```json
 { "success": false, "message": "Pending transaction not found" }
+```
+
+### Already paid: `409`
+
+```json
+{ "success": false, "message": "This payment has already been completed by the customer and cannot be cancelled." }
+```
+
+### Payment in progress: `409`
+
+```json
+{ "success": false, "message": "The customer is completing this payment right now. Please check its status again shortly." }
+```
+
+### Processor unreachable: `502`
+
+```json
+{ "success": false, "message": "Could not reach the payment provider to cancel this payment. Please try again." }
 ```

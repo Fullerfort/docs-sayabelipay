@@ -58,7 +58,7 @@ curl https://sayabelipay.com/api/transaction/9B8FEEB60F9E3 \
 | `Success` | Paid. Money received. | Yes |
 | `Unsuccessful` | Payment failed or was declined, or the customer cancelled on the checkout page. | Yes |
 | `Expired` | Not paid within 60 minutes (e.g. the customer closed the tab). | Yes |
-| `Cancelled` | You cancelled it with [the cancel endpoint](/api-reference/cancel-transaction). | Yes, unless the customer still pays — see that page |
+| `Cancelled` | You cancelled it with [the cancel endpoint](/api-reference/cancel-transaction). The customer can no longer pay it. | Yes |
 | `Overdue` | The checkout's due time passed without payment. | Treat as not paid |
 | `Pending_Refund` | A refund was requested and is being processed. | No |
 | `Refunded` | The refund has completed. | Yes |
