@@ -3,21 +3,17 @@ title: DuitNow QR Generation
 description: Show the DuitNow QR code inside your own checkout
 ---
 
-<Note>
-  **Coming soon.** This option isn't enabled on the API yet. Today, `channel=DUITNOW_QR` returns a checkout URL like every other channel (see [Create a Payment](/api-reference/create-payment)). The exact request and response fields will be added to this page when it goes live. You can use this guide to plan and design your page now.
-</Note>
-
 <Warning>
   **Live accounts only.** The QR is only available once Live Mode has been enabled on your account by SayaBeliPay. It doesn't work in sandbox (test) mode: test payments can't produce a real, scannable DuitNow QR. Use sandbox to test the rest of your integration, and contact SayaBeliPay when you're ready to go live.
 </Warning>
 
-Instead of redirecting your customer to a checkout page, you'll be able to ask SayaBeliPay for the DuitNow QR itself and show it on your own page. The customer scans it with their banking app or e-wallet without ever leaving your site.
+Instead of redirecting your customer to a checkout page, you can ask SayaBeliPay for the DuitNow QR itself and show it on your own page. The customer scans it with their banking app or e-wallet without ever leaving your site.
 
-## How it will work
+## How it works
 
 1. The customer reviews their order on your confirmation page (items, total) and taps **Pay with DuitNow QR**.
-2. Only then does your server create a payment with `channel=DUITNOW_QR` and ask for the QR instead of a checkout URL.
-3. SayaBeliPay returns the **QR image** and its **expiry time**.
+2. Only then does your server create a payment with `channel=DUITNOW_QR` and `qr=1`, which asks for the QR instead of a checkout URL.
+3. SayaBeliPay returns the **QR** and its **expiry time**.
 4. You show the QR on your page, either the standard design or a custom design set up with SayaBeliPay (see below).
 5. The customer scans and pays in their app.
 6. You confirm the result by [polling the transaction status](/guides/payment-status), the same as for any other payment.
@@ -25,6 +21,66 @@ Instead of redirecting your customer to a checkout page, you'll be able to ask S
 <Tip>
   Create the QR only when the customer confirms, not when they open the cart or the checkout page. The QR's 5 minutes start the moment it's created, so making it early wastes the customer's time and leaves unused payments behind.
 </Tip>
+
+## Request
+
+Use [Create a Payment](/api-reference/create-payment) with all the usual fields, plus `qr=1`. The `channel` must be `DUITNOW_QR`.
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `channel` | string | Yes | Must be `DUITNOW_QR`. |
+| `qr` | string | Yes, for this flow | `1` returns the QR instead of a checkout URL. Leave it out to get the normal checkout URL. |
+
+```bash
+curl -X POST https://sayabelipay.com/api/payment \
+  -u "YOUR_CLIENT_ID:YOUR_CLIENT_SECRET" \
+  -d amount=25.00 \
+  -d quantity=1 \
+  -d order_no=ACME-1235 \
+  -d order_detail="Order 1235" \
+  -d customer_name="Jane Tan" \
+  -d customer_email=jane@example.com \
+  -d customer_phone=60123456789 \
+  -d channel=DUITNOW_QR \
+  -d qr=1 \
+  -d hash=YOUR_HASH
+```
+
+## Response
+
+```json
+{
+  "status": 200,
+  "transaction_id": "5C83304DDD99E",
+  "qr": {
+    "string": "00020201021226...6304ABCD",
+    "image_url": "https://...",
+    "expires_at": "2026-11-09T15:05:00+08:00",
+    "expires_in": 300
+  }
+}
+```
+
+| Field | Notes |
+|---|---|
+| `transaction_id` | Use this to [check the payment status](/guides/payment-status), the same as any other payment. |
+| `qr.string` | The DuitNow QR content. Turn it into a QR code with any QR library. Use it exactly as given. |
+| `qr.image_url` | A ready-made QR image you can show instead. It may be missing (`null`); if so, draw the QR from `qr.string`. |
+| `qr.expires_at` | When the QR stops working (ISO 8601). |
+| `qr.expires_in` | Seconds left until it expires. Use this for your countdown. |
+
+### Errors
+
+These come back with HTTP `200` and the error code in the `status` field.
+
+| `status` | Meaning | What to do |
+|---|---|---|
+| `400` | The QR option is only for `DUITNOW_QR` payments on accounts with Live Mode enabled. | Check the channel, and that your account is live. |
+| `502` | The payment was created, but the QR could not be generated. | Create a **new payment with a new `order_no`**. The unused payment expires on its own. |
+
+```json
+{ "status": 502, "message": "Could not generate the DuitNow QR. Please try again.", "transaction_id": "5C83304DDD99E" }
+```
 
 ## Rules for the QR
 

@@ -23,6 +23,7 @@ Authorization: Basic base64(client_id:client_secret)
 | `customer_email` | string | Yes | Must be a valid email address. |
 | `customer_phone` | string | Yes | Numeric only, no `+` or spaces, e.g. `60123456789`. |
 | `channel` | string | Yes | `FPX` or `DUITNOW_QR`. See [Payment Channels](/guides/payment-channels). |
+| `qr` | string | No | `1` to get the DuitNow QR itself instead of a checkout URL (`DUITNOW_QR`, live accounts only). See [DuitNow QR Generation](/guides/duitnow-qr-own-page). |
 | `hash` | string | Yes | See [Hash Generation](/guides/hash-generation). |
 
 <CodeGroup>
